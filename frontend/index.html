@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CodeRefine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center p-6">
+
+    <h1 class="text-4xl font-bold mb-4 text-blue-700">CodeRefine</h1>
+    <p class="mb-6 text-gray-700 text-center">AI-Powered Code Review & Optimization Engine</p>
+
+    <div class="w-full max-w-3xl bg-white shadow-lg rounded-lg p-6">
+        <label class="block mb-2 font-semibold">Select Language:</label>
+        <select id="language" class="w-full mb-4 p-2 border rounded">
+            <option>Python</option>
+            <option>C</option>
+            <option>Java</option>
+        </select>
+
+        <label class="block mb-2 font-semibold">Paste Your Code:</label>
+        <textarea id="code" class="w-full h-40 p-2 mb-4 border rounded" placeholder="Paste your code here..."></textarea>
+
+        <button onclick="analyzeCode()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded mb-4">
+            Review Code
+        </button>
+
+        <h2 class="text-xl font-semibold mb-2">AI Review:</h2>
+        <pre id="result" class="bg-gray-100 p-4 border rounded text-gray-800 whitespace-pre-wrap"></pre>
+    </div>
+
+<script>
+async function analyzeCode() {
+    const code = document.getElementById("code").value;
+    const language = document.getElementById("language").value;
+    const resultBox = document.getElementById("result");
+
+    if (!code.trim()) {
+        resultBox.textContent = "Please paste your code!";
+        return;
+    }
+
+    try {
+        const response = await fetch("http://127.0.0.1:8000/review", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code, language })
+        });
+
+        const data = await response.json();
+
+        resultBox.textContent = 
+            "Bugs:\n" + data.bugs.join("\n") +
+            "\n\nPerformance Issues:\n" + data.performance_issues.join("\n") +
+            "\n\nBest Practices:\n" + data.best_practices.join("\n") +
+            "\n\nOptimized Code:\n" + data.optimized_code;
+
+    } catch (error) {
+        resultBox.textContent = "Error connecting to backend. Make sure the server is running.";
+        console.error(error);
+    }
+}
+</script>
+
+</body>
+</html>
